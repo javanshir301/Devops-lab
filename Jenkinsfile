@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/user/repo.git'
+                git credentialsId: 'github-token', url: 'https://github.com/javanshir301/Devops-lab.git', branch: 'main'
             }
         }
         stage('Build') {
