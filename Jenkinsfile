@@ -1,19 +1,28 @@
 pipeline {
     agent any
+    environment {
+        VIRTUAL_ENV = 'venv'
+    }
     stages {
         stage('Checkout') {
-            steps {
+            steps { 
                 git credentialsId: 'github-token', url: 'https://github.com/javanshir301/Devops-lab.git', branch: 'main'
             }
         }
-        stage('Build') {
+        stage('Setup Python') {
             steps {
-                sh 'echo "Building the project..."'
+                sh 'python3 -m venv ${VIRTUAL_ENV}'
+                sh 'source ${VIRTUAL_ENV}/bin/activate && pip install -r requirements.txt'
             }
         }
-        stage('Test') {
+        stage('Run Tests') {
             steps {
-                sh 'echo "Running tests..."'
+                sh 'source ${VIRTUAL_ENV}/bin/activate && pytest'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh 'echo "Deploying the application..."'
             }
         }
     }
