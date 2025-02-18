@@ -1,28 +1,30 @@
 pipeline {
     agent any
+
     environment {
-        VIRTUAL_ENV = 'venv'
+        IMAGE_NAME = "javanshir301/devops-lab"
+        IMAGE_TAG = "latest"
+        DOCKER_HUB_CREDENTIALS = "docker-hub-cred"
     }
+
     stages {
         stage('Checkout') {
-            steps { 
-                git credentialsId: 'github-token', url: 'https://github.com/javanshir301/Devops-lab.git', branch: 'main'
+            steps {
+                git branch: 'main', url: 'https://github.com/javanshir301/Devops-lab.git'
             }
         }
-        stage('Setup Python') {
+
+        stage('Build Docker Image') {
             steps {
-                sh 'python3 -m venv ${VIRTUAL_ENV}'
-                sh 'source ${VIRTUAL_ENV}/bin/activate && pip install -r requirements.txt'
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
             }
         }
-        stage('Run Tests') {
+
+        stage('Push to Docker Hub') {
             steps {
-                sh 'source ${VIRTUAL_ENV}/bin/activate && pytest'
-            }
-        }
-        stage('Deploy') {
-            steps {
-                sh 'echo "Deploying the application..."'
+                withDockerRegistry([credentialsId: DOCKER_HUB_CREDENTIALS, url: '']) {
+                    sh 'docker push $IMAGE_NAME:$IMAGE_TAG'
+                }
             }
         }
     }
